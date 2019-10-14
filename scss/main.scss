@@ -39,6 +39,7 @@ nav#main-nav .container {
 .expenses-container {
   margin: 1rem;
   padding: 2rem;
+
   box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px 0px;
 }
 
@@ -71,7 +72,7 @@ input {
 }
 
 .clear-btn {
-  background: #ff745b;
+  background: lighten(tomato, 4%);
 }
 
 .add-btn,
@@ -124,7 +125,6 @@ input {
   .container {
     text-align: center;
   }
-
   .expenses-form {
     display: flex;
     flex-direction: column;
@@ -136,11 +136,10 @@ input {
   .btns-container {
     flex-direction: column;
     align-items: center;
-  }
-  .btns-container div {
-    display: flex;
-    flex-direction: column;
+
+    div {
+      display: flex;
+      flex-direction: column;
+    }
   }
 }
-
-/*# sourceMappingURL=style.css.map */

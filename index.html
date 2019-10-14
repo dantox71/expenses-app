@@ -9,6 +9,67 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
+    <nav id="main-nav">
+      <div class="container">
+        <h1>Expenses App</h1>
+
+        <!--Font Awesome-->
+        <script src="https://use.fontawesome.com/f204aa8ba6.js"></script>
+
+        <a href="" class="btn clear-btn">Clear All</a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="expenses-container">
+        <h1>Add Expense</h1>
+        <form class="expenses-form">
+          <div class="input-group">
+            <label for="expense-name-input">Expense Name</label>
+            <input
+              type="text"
+              placeholder="Add Expense"
+              id="expense-name-input"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="expense-amount-input">Expense Name</label>
+            <input
+              type="number"
+              placeholder="Add cost"
+              id="expense-name-input"
+            />
+          </div>
+        </form>
+        <div class="btns-container">
+          <div>
+            <a href="" class="btn add-btn"
+              >Add expense<i class="fa fa-plus"></i
+            ></a>
+
+            <a href="" class="btn edit-btn"
+              >Edit expense <i class="fa fa-pencil-square-o"></i
+            ></a>
+            <a href="" class="btn delete-btn"
+              >Delete expense <i class="fa fa-remove"></i
+            ></a>
+          </div>
+          <a href="" class="btn back-btn"
+            >Back <i class="fa fa-chevron-circle-left"></i
+          ></a>
+        </div>
+      </div>
+
+      <ul id="items-list">
+        <li class="item">
+          <div><strong>Nazwa:</strong><span class="price">30</span></div>
+
+          <i class="edit-item fa fa-pencil" aria-hidden="true"></i>
+        </li>
+      </ul>
+    </div>
+
     <script src="js/app.js"></script>
   </body>
 </html>

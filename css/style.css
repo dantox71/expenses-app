@@ -86,7 +86,6 @@ input {
 
 .edit-btn {
   background: orangered;
-  display: none;
 }
 
 .edit-item {
@@ -95,7 +94,6 @@ input {
 
 .delete-btn {
   background: red;
-  display: none;
 }
 
 .back-btn {

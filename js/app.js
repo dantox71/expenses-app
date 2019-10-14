@@ -25,12 +25,16 @@ ItemCtrl = (function() {
         id: 2
       }
     ],
-    curentItem: null,
+    currentItem: null,
     totalCosts: 0
   };
 
   //Public methods
   return {
+    logData: function() {
+      return data;
+    },
+
     getItems: function() {
       return data.items;
     },
@@ -41,6 +45,31 @@ ItemCtrl = (function() {
       cost = parseInt(cost);
       const newItem = { name: name, cost: cost, id: ID };
       data.items.push(newItem);
+    },
+
+    getCurrentId: function() {
+      const ID = data.items[data.items.length - 1].id;
+
+      return ID;
+    },
+
+    setCurrentItem: function(id) {
+      id = id.split("-");
+      id = parseInt(id[1]);
+
+      data.items.forEach(function(item) {
+        if (item.id === id) {
+          data.currentItem = {
+            name: item.name,
+            cost: item.cost,
+            id: id
+          };
+        }
+      });
+    },
+
+    getCurrentItem() {
+      return data.currentItem;
     }
   };
 })();
@@ -51,7 +80,10 @@ const UICtrl = (function() {
     itemsList: "#items-list",
     nameInput: "#expense-name-input",
     costInput: "#expense-amount-input",
-    addBtn: ".add-btn"
+    addBtn: ".add-btn",
+    editBtn: ".edit-btn",
+    deleteBtn: ".delete-btn",
+    backBtn: ".back-btn"
   };
 
   return {
@@ -71,10 +103,11 @@ const UICtrl = (function() {
       document.querySelector(UISelectors.itemsList).innerHTML = html;
     },
 
-    addItemList: function(name, cost) {
+    addItemList: function(name, cost, id) {
       const li = document.createElement("li");
 
       li.classList.add("item");
+      li.id = `item-${id}`;
 
       li.innerHTML = `
       <div><strong>${name}:</strong>${cost}</div>
@@ -99,6 +132,21 @@ const UICtrl = (function() {
     clearInputValues: function() {
       (document.querySelector(UISelectors.nameInput).value = ""),
         (document.querySelector(UISelectors.costInput).value = "");
+    },
+
+    getCurrentInputValues: function(name, cost) {
+      (document.querySelector(UISelectors.nameInput).value = name),
+        (document.querySelector(UISelectors.costInput).value = cost);
+    },
+    editStateOn: function() {
+      document.querySelector(UISelectors.addBtn).style.display = "none";
+      document.querySelector(UISelectors.deleteBtn).style.display = "inline";
+      document.querySelector(UISelectors.editBtn).style.display = "inline";
+    },
+    editStateOff: function() {
+      document.querySelector(UISelectors.addBtn).style.display = "block";
+      document.querySelector(UISelectors.deleteBtn).style.display = "none";
+      document.querySelector(UISelectors.editBtn).style.display = "none";
     }
   };
 })();
@@ -111,19 +159,34 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
     document
       .querySelector(selectors.addBtn)
       .addEventListener("click", itemAddSubmit);
+
+    document
+      .querySelector(selectors.itemsList)
+      .addEventListener("click", itemUpdateClick);
+
+    document
+      .querySelector(selectors.editBtn)
+      .addEventListener("click", itemUpdateSubmit);
+
+    document
+      .querySelector(selectors.backBtn)
+      .addEventListener("click", itemBackClick);
   };
+
   //Add event listeners
 
   itemAddSubmit = function(e) {
     const inputValues = UICtrl.getInputValues();
 
-    //Add new item to structure
-
     if (inputValues.name !== "" && inputValues.cost !== "") {
+      //Add new item to structure
       ItemCtrl.addItem(inputValues.name, inputValues.cost);
 
+      //get id newly created item
+      const currentId = ItemCtrl.getCurrentId();
+
       //Add new item to UI
-      UICtrl.addItemList(inputValues.name, inputValues.cost);
+      UICtrl.addItemList(inputValues.name, inputValues.cost, currentId);
 
       //Clear input values
       UICtrl.clearInputValues();
@@ -132,9 +195,43 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
     e.preventDefault();
   };
 
+  itemUpdateClick = function(e) {
+    if (e.target.classList.contains("edit-item")) {
+      const id = e.target.parentNode.id;
+
+      //Set Current Item
+      ItemCtrl.setCurrentItem(id);
+
+      const currentItem = ItemCtrl.getCurrentItem();
+
+      //Fill values with current item's data
+      UICtrl.getCurrentInputValues(currentItem.name, currentItem.cost);
+      UICtrl.editStateOn(); //Turn on edit state
+    }
+  };
+
+  itemUpdateSubmit = function(e) {
+    const currentItem = ItemCtrl.getCurrentItem();
+
+    console.log(currentItem);
+
+    //Update item in file structure
+    // ItemCtrl.updateItem(currentItem);
+
+    e.preventDefault();
+  };
+
+  itemBackClick = function(e) {
+    UICtrl.editStateOff();
+
+    e.preventDefault();
+  };
+
   return {
     init() {
       const items = ItemCtrl.getItems();
+
+      UICtrl.editStateOff();
 
       if (items.length > 0) {
         UICtrl.loadItems(items);

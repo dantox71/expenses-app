@@ -1,9 +1,9 @@
-# expenses-app
+<h1>Expenses App</h1>
 
-<h1>App to plan expenses </h1>
+<h2>App to plan expenses </h2>
 
 
-<h2>Technologies</h2>
+<h3>Technologies</h3>
 <ul>
 <li>HTML5</li>
 <li>CSS3</li>

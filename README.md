@@ -1,6 +1,6 @@
 # expenses-app
 
-<h1>This app let you plan your expenses better</h1>
+<h1>App to plan expenses </h1>
 
 
 <h2>Technologies</h2>

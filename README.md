@@ -8,5 +8,5 @@
 <li>HTML5</li>
 <li>CSS3</li>
 <li>javaScript</li>
-<li>fontAwesome</li>
+<li>Font Awesome</li>
 </ul>

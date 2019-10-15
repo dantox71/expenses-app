@@ -1,5 +1,9 @@
 //Storage controller - Will be responsible for adding/removing items to/from localStorage
-
+StorageCtrl = (function() {
+  return {
+    addItemToLocalStorage: function(name, cost, id) {}
+  };
+})();
 //Item controller
 ItemCtrl = (function() {
   // const Item = function(name, cost, id) {
@@ -8,23 +12,7 @@ ItemCtrl = (function() {
   //   this.id = id;
 
   const data = {
-    items: [
-      {
-        name: "Taxes",
-        cost: 30,
-        id: 0
-      },
-      {
-        name: "Car Repair",
-        cost: 150,
-        id: 1
-      },
-      {
-        name: "Bus Ticket",
-        cost: 5,
-        id: 2
-      }
-    ],
+    items: [],
     currentItem: null,
     totalCosts: 0
   };
@@ -40,7 +28,13 @@ ItemCtrl = (function() {
     },
 
     addItem: function(name, cost) {
-      const ID = data.items[data.items.length - 1].id + 1;
+      let ID;
+      if (data.items.length > 0) {
+        ID = data.items[data.items.length - 1].id + 1;
+      } else {
+        ID = 0;
+      }
+
       //Parse cost to int
       cost = parseInt(cost);
       const newItem = { name: name, cost: cost, id: ID };
@@ -48,7 +42,12 @@ ItemCtrl = (function() {
     },
 
     getCurrentId: function() {
-      const ID = data.items[data.items.length - 1].id;
+      let ID;
+      if (data.items.length > 0) {
+        ID = data.items[data.items.length - 1].id;
+      } else {
+        ID = 0;
+      }
 
       return ID;
     },
@@ -80,6 +79,18 @@ ItemCtrl = (function() {
           item.cost = cost;
         }
       });
+    },
+
+    deleteItem: function(id) {
+      data.items.forEach(function(item, index) {
+        if (item.id === id) {
+          data.items.splice(index, 1);
+        }
+      });
+    },
+
+    clearItems: function() {
+      data.items = [];
     }
   };
 })();
@@ -94,7 +105,8 @@ const UICtrl = (function() {
     addBtn: ".add-btn",
     editBtn: ".edit-btn",
     deleteBtn: ".delete-btn",
-    backBtn: ".back-btn"
+    backBtn: ".back-btn",
+    clearBtn: ".clear-btn"
   };
 
   return {
@@ -178,14 +190,40 @@ const UICtrl = (function() {
           `;
         }
       });
+    },
+
+    deleteItemList: function(idToDelete) {
+      let listItems = document.querySelectorAll(UISelectors.itemsListItems);
+      listItems = Array.from(listItems);
+
+      listItems.forEach(function(listItem) {
+        let id = listItem.id;
+        id = id.split("-");
+        id = parseInt(id[1]);
+
+        if (id === idToDelete) {
+          document.querySelector(`#item-${idToDelete}`).remove();
+        }
+      });
+    },
+
+    clearItemsList: function() {
+      let itemsList = document.querySelectorAll(UISelectors.itemsListItems);
+      itemsList = Array.from(itemsList);
+
+      itemsList.forEach(function(item) {
+        item.remove();
+      });
     }
   };
 })();
 
 //App controler
-const AppCtrl = (function(ItemCtrl, UICtrl) {
+const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
   const loadEventListeners = function() {
     const selectors = UICtrl.getSelectors();
+
+    //Add event listeners
 
     document
       .querySelector(selectors.addBtn)
@@ -202,9 +240,15 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
     document
       .querySelector(selectors.backBtn)
       .addEventListener("click", itemBackClick);
-  };
 
-  //Add event listeners
+    document
+      .querySelector(selectors.deleteBtn)
+      .addEventListener("click", itemDeleteSubmit);
+
+    document
+      .querySelector(selectors.clearBtn)
+      .addEventListener("click", clearItemsSubmit);
+  };
 
   itemAddSubmit = function(e) {
     const inputValues = UICtrl.getInputValues();
@@ -218,6 +262,13 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
 
       //Add new item to UI
       UICtrl.addItemList(inputValues.name, inputValues.cost, currentId);
+
+      //Add to localStorage
+      StorageCtrl.addItemToLocalStorage(
+        inputValues.name,
+        inputValues.cost,
+        currentId
+      );
 
       //Clear input values
       UICtrl.clearInputValues();
@@ -256,12 +307,36 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
 
     //Turn off edit state
     UICtrl.editStateOff();
-
+    //Clear inputs
+    UICtrl.clearInputValues();
     e.preventDefault();
   };
 
   itemBackClick = function(e) {
     UICtrl.editStateOff();
+
+    e.preventDefault();
+  };
+
+  itemDeleteSubmit = function(e) {
+    const currentItem = ItemCtrl.getCurrentItem();
+
+    //Delete item from file structure
+    ItemCtrl.deleteItem(currentItem.id);
+
+    //Delete item from UI
+    UICtrl.deleteItemList(currentItem.id);
+    //Clear Inputs
+    UICtrl.clearInputValues();
+    e.preventDefault();
+  };
+
+  clearItemsSubmit = function(e) {
+    //Clear items from file structure
+    ItemCtrl.clearItems();
+
+    //Clear items from UI
+    UICtrl.clearItemsList();
 
     e.preventDefault();
   };
@@ -279,6 +354,6 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
       loadEventListeners();
     }
   };
-})(ItemCtrl, UICtrl);
+})(ItemCtrl, StorageCtrl, UICtrl);
 
 AppCtrl.init();

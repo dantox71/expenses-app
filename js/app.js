@@ -1,11 +1,60 @@
-//Storage controller - Will be responsible for adding/removing items to/from localStorage
-StorageCtrl = (function() {
+//Storage controller
+StorageCtrl = (() => {
   return {
-    addItemToLocalStorage: function(name, cost, id) {}
+    getItemsFromLocalStorage: () => {
+      let items = JSON.parse(localStorage.getItem("items"));
+
+      if (items === null) {
+        return [];
+      } else {
+        return items;
+      }
+    },
+
+    addItemToLocalStorage: (name, cost, id) => {
+      let items;
+      if (localStorage.getItem("items") === null) {
+        items = [];
+      } else {
+        items = JSON.parse(localStorage.getItem("items"));
+      }
+
+      items.push({ name: name, cost: cost, id: id });
+
+      localStorage.setItem("items", JSON.stringify(items));
+    },
+    updateItemInLocalStorage: (newName, newCost, id) => {
+      let items = JSON.parse(localStorage.getItem("items"));
+
+      items.forEach(item => {
+        if (item.id === id) {
+          item.name = newName;
+          item.cost = newCost;
+        }
+      });
+
+      localStorage.setItem("items", JSON.stringify(items));
+    },
+
+    deleteItemFomLocalStorage: id => {
+      let items = JSON.parse(localStorage.getItem("items"));
+
+      items.forEach(function(item, index) {
+        if (item.id === id) {
+          items.splice(index, 1);
+        }
+      });
+
+      localStorage.setItem("items", JSON.stringify(items));
+    },
+
+    clearItemsFromLocalStorage: id => {
+      localStorage.clear("items");
+    }
   };
 })();
 //Item controller
-ItemCtrl = (function() {
+ItemCtrl = (() => {
   // const Item = function(name, cost, id) {
   //   this.name = name;
   //   this.cost = cost;
@@ -19,15 +68,23 @@ ItemCtrl = (function() {
 
   //Public methods
   return {
-    logData: function() {
+    logData: () => {
       return data;
     },
 
-    getItems: function() {
+    getItems: () => {
       return data.items;
     },
 
-    addItem: function(name, cost) {
+    setData: () => {
+      if (JSON.parse(localStorage.getItem("items")) === null) {
+        data.items = [];
+      } else {
+        data.items = JSON.parse(localStorage.getItem("items"));
+      }
+    },
+
+    addItem: (name, cost) => {
       let ID;
       if (data.items.length > 0) {
         ID = data.items[data.items.length - 1].id + 1;
@@ -41,7 +98,7 @@ ItemCtrl = (function() {
       data.items.push(newItem);
     },
 
-    getCurrentId: function() {
+    getCurrentId: () => {
       let ID;
       if (data.items.length > 0) {
         ID = data.items[data.items.length - 1].id;
@@ -52,11 +109,11 @@ ItemCtrl = (function() {
       return ID;
     },
 
-    setCurrentItem: function(id) {
+    setCurrentItem: id => {
       id = id.split("-");
       id = parseInt(id[1]);
 
-      data.items.forEach(function(item) {
+      data.items.forEach(item => {
         if (item.id === id) {
           data.currentItem = {
             name: item.name,
@@ -67,13 +124,13 @@ ItemCtrl = (function() {
       });
     },
 
-    getCurrentItem: function() {
+    getCurrentItem: () => {
       return data.currentItem;
     },
 
-    updateItem: function(name, cost) {
+    updateItem: (name, cost) => {
       const currentItem = data.currentItem;
-      data.items.forEach(function(item) {
+      data.items.forEach(item => {
         if (currentItem.id === item.id) {
           item.name = name;
           item.cost = cost;
@@ -81,22 +138,22 @@ ItemCtrl = (function() {
       });
     },
 
-    deleteItem: function(id) {
-      data.items.forEach(function(item, index) {
+    deleteItem: id => {
+      data.items.forEach((item, index) => {
         if (item.id === id) {
           data.items.splice(index, 1);
         }
       });
     },
 
-    clearItems: function() {
+    clearItems: () => {
       data.items = [];
     }
   };
 })();
 
 //Ui controller
-const UICtrl = (function() {
+const UICtrl = (() => {
   UISelectors = {
     itemsList: "#items-list",
     itemsListItems: "#items-list li",
@@ -110,10 +167,10 @@ const UICtrl = (function() {
   };
 
   return {
-    loadItems: function(items) {
+    loadItems: items => {
       let html = "";
 
-      items.forEach(function(item) {
+      items.forEach(item => {
         html += `
           <li class="item" id="item-${item.id}">
           <div><strong>${item.name}:</strong>${item.cost}</div>
@@ -126,7 +183,7 @@ const UICtrl = (function() {
       document.querySelector(UISelectors.itemsList).innerHTML = html;
     },
 
-    addItemList: function(name, cost, id) {
+    addItemList: (name, cost, id) => {
       const li = document.createElement("li");
 
       li.classList.add("item");
@@ -141,33 +198,33 @@ const UICtrl = (function() {
         .insertAdjacentElement("beforeend", li);
     },
 
-    getInputValues: function() {
+    getInputValues: () => {
       return {
         name: document.querySelector(UISelectors.nameInput).value,
         cost: document.querySelector(UISelectors.costInput).value
       };
     },
 
-    getSelectors: function() {
+    getSelectors: () => {
       return UISelectors;
     },
 
-    clearInputValues: function() {
+    clearInputValues: () => {
       (document.querySelector(UISelectors.nameInput).value = ""),
         (document.querySelector(UISelectors.costInput).value = "");
     },
 
-    setInputValues: function(name, cost) {
+    setInputValues: (name, cost) => {
       document.querySelector(UISelectors.nameInput).value = name;
       document.querySelector(UISelectors.costInput).value = cost;
     },
 
-    editStateOn: function() {
+    editStateOn: () => {
       document.querySelector(UISelectors.addBtn).style.display = "none";
       document.querySelector(UISelectors.deleteBtn).style.display = "inline";
       document.querySelector(UISelectors.editBtn).style.display = "inline";
     },
-    editStateOff: function() {
+    editStateOff: () => {
       document.querySelector(UISelectors.addBtn).style.display = "block";
       document.querySelector(UISelectors.deleteBtn).style.display = "none";
       document.querySelector(UISelectors.editBtn).style.display = "none";
@@ -178,7 +235,7 @@ const UICtrl = (function() {
 
       listItems = Array.from(listItems);
 
-      listItems.forEach(function(listItem) {
+      listItems.forEach(listItem => {
         let id = listItem.id;
         id = id.split("-");
         id = parseInt(id[1]);
@@ -192,11 +249,11 @@ const UICtrl = (function() {
       });
     },
 
-    deleteItemList: function(idToDelete) {
+    deleteItemList: idToDelete => {
       let listItems = document.querySelectorAll(UISelectors.itemsListItems);
       listItems = Array.from(listItems);
 
-      listItems.forEach(function(listItem) {
+      listItems.forEach(listItem => {
         let id = listItem.id;
         id = id.split("-");
         id = parseInt(id[1]);
@@ -207,11 +264,11 @@ const UICtrl = (function() {
       });
     },
 
-    clearItemsList: function() {
+    clearItemsList: () => {
       let itemsList = document.querySelectorAll(UISelectors.itemsListItems);
       itemsList = Array.from(itemsList);
 
-      itemsList.forEach(function(item) {
+      itemsList.forEach(item => {
         item.remove();
       });
     }
@@ -219,8 +276,8 @@ const UICtrl = (function() {
 })();
 
 //App controler
-const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
-  const loadEventListeners = function() {
+const AppCtrl = ((ItemCtrl, StorageCtrl, UICtrl) => {
+  const loadEventListeners = () => {
     const selectors = UICtrl.getSelectors();
 
     //Add event listeners
@@ -250,7 +307,7 @@ const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
       .addEventListener("click", clearItemsSubmit);
   };
 
-  itemAddSubmit = function(e) {
+  itemAddSubmit = e => {
     const inputValues = UICtrl.getInputValues();
 
     if (inputValues.name !== "" && inputValues.cost !== "") {
@@ -277,7 +334,7 @@ const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
     e.preventDefault();
   };
 
-  itemUpdateClick = function(e) {
+  itemUpdateClick = e => {
     if (e.target.classList.contains("edit-item")) {
       const id = e.target.parentNode.id;
 
@@ -295,7 +352,7 @@ const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
     }
   };
 
-  itemUpdateSubmit = function(e) {
+  itemUpdateSubmit = e => {
     const currentItem = ItemCtrl.getCurrentItem();
     const newInput = UICtrl.getInputValues();
 
@@ -305,6 +362,13 @@ const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
     //Update item in UI
     UICtrl.updateItemList(newInput.name, newInput.cost, currentItem.id);
 
+    //Update item in localStorage
+    StorageCtrl.updateItemInLocalStorage(
+      newInput.name,
+      newInput.cost,
+      currentItem.id
+    );
+
     //Turn off edit state
     UICtrl.editStateOff();
     //Clear inputs
@@ -312,28 +376,37 @@ const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
     e.preventDefault();
   };
 
-  itemBackClick = function(e) {
+  itemBackClick = e => {
     UICtrl.editStateOff();
 
     e.preventDefault();
   };
 
-  itemDeleteSubmit = function(e) {
+  itemDeleteSubmit = e => {
     const currentItem = ItemCtrl.getCurrentItem();
 
     //Delete item from file structure
     ItemCtrl.deleteItem(currentItem.id);
 
+    //Delete particular item from localStorage
+    StorageCtrl.deleteItemFomLocalStorage(currentItem.id);
+
     //Delete item from UI
     UICtrl.deleteItemList(currentItem.id);
+
+    //Cler edit state
+    UICtrl.editStateOff();
     //Clear Inputs
     UICtrl.clearInputValues();
     e.preventDefault();
   };
 
-  clearItemsSubmit = function(e) {
+  clearItemsSubmit = e => {
     //Clear items from file structure
     ItemCtrl.clearItems();
+
+    //Clear all items from localStorage
+    StorageCtrl.clearItemsFromLocalStorage();
 
     //Clear items from UI
     UICtrl.clearItemsList();
@@ -343,7 +416,9 @@ const AppCtrl = (function(ItemCtrl, StorageCtrl, UICtrl) {
 
   return {
     init() {
-      const items = ItemCtrl.getItems();
+      const items = StorageCtrl.getItemsFromLocalStorage();
+      //Set data structure
+      ItemCtrl.setData();
 
       UICtrl.editStateOff();
 

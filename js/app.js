@@ -68,8 +68,18 @@ ItemCtrl = (function() {
       });
     },
 
-    getCurrentItem() {
+    getCurrentItem: function() {
       return data.currentItem;
+    },
+
+    updateItem: function(name, cost) {
+      const currentItem = data.currentItem;
+      data.items.forEach(function(item) {
+        if (currentItem.id === item.id) {
+          item.name = name;
+          item.cost = cost;
+        }
+      });
     }
   };
 })();
@@ -78,6 +88,7 @@ ItemCtrl = (function() {
 const UICtrl = (function() {
   UISelectors = {
     itemsList: "#items-list",
+    itemsListItems: "#items-list li",
     nameInput: "#expense-name-input",
     costInput: "#expense-amount-input",
     addBtn: ".add-btn",
@@ -134,10 +145,11 @@ const UICtrl = (function() {
         (document.querySelector(UISelectors.costInput).value = "");
     },
 
-    getCurrentInputValues: function(name, cost) {
-      (document.querySelector(UISelectors.nameInput).value = name),
-        (document.querySelector(UISelectors.costInput).value = cost);
+    setInputValues: function(name, cost) {
+      document.querySelector(UISelectors.nameInput).value = name;
+      document.querySelector(UISelectors.costInput).value = cost;
     },
+
     editStateOn: function() {
       document.querySelector(UISelectors.addBtn).style.display = "none";
       document.querySelector(UISelectors.deleteBtn).style.display = "inline";
@@ -147,6 +159,25 @@ const UICtrl = (function() {
       document.querySelector(UISelectors.addBtn).style.display = "block";
       document.querySelector(UISelectors.deleteBtn).style.display = "none";
       document.querySelector(UISelectors.editBtn).style.display = "none";
+    },
+
+    updateItemList: function(name, cost, idToUpdate) {
+      let listItems = document.querySelectorAll(UISelectors.itemsListItems);
+
+      listItems = Array.from(listItems);
+
+      listItems.forEach(function(listItem) {
+        let id = listItem.id;
+        id = id.split("-");
+        id = parseInt(id[1]);
+
+        if (id === idToUpdate) {
+          document.querySelector(`#item-${idToUpdate}`).innerHTML = `
+          <div><strong>${name}:</strong>${cost}</div>
+          <i class="edit-item fa fa-pencil" aria-hidden="true"></i>
+          `;
+        }
+      });
     }
   };
 })();
@@ -204,19 +235,27 @@ const AppCtrl = (function(ItemCtrl, UICtrl) {
 
       const currentItem = ItemCtrl.getCurrentItem();
 
+      //Set current input values
+      UICtrl.setInputValues(currentItem.name, currentItem.cost);
+
       //Fill values with current item's data
-      UICtrl.getCurrentInputValues(currentItem.name, currentItem.cost);
+      UICtrl.getInputValues(currentItem.name, currentItem.cost);
       UICtrl.editStateOn(); //Turn on edit state
     }
   };
 
   itemUpdateSubmit = function(e) {
     const currentItem = ItemCtrl.getCurrentItem();
-
-    console.log(currentItem);
+    const newInput = UICtrl.getInputValues();
 
     //Update item in file structure
-    // ItemCtrl.updateItem(currentItem);
+    ItemCtrl.updateItem(newInput.name, newInput.cost);
+
+    //Update item in UI
+    UICtrl.updateItemList(newInput.name, newInput.cost, currentItem.id);
+
+    //Turn off edit state
+    UICtrl.editStateOff();
 
     e.preventDefault();
   };

@@ -55,11 +55,6 @@ StorageCtrl = (() => {
 })();
 //Item controller
 ItemCtrl = (() => {
-  // const Item = function(name, cost, id) {
-  //   this.name = name;
-  //   this.cost = cost;
-  //   this.id = id;
-
   const data = {
     items: [],
     currentItem: null,
